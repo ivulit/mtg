@@ -15,6 +15,12 @@ type proxyNetwork struct {
 	client proxy.ContextDialer
 }
 
+// Dial routes the connection through the SOCKS5 proxy by delegating to DialContext.
+// Without this override, the embedded base network's Dial would bypass the proxy.
+func (p proxyNetwork) Dial(network, address string) (essentials.Conn, error) {
+	return p.DialContext(context.Background(), network, address)
+}
+
 func (p proxyNetwork) DialContext(ctx context.Context, network, address string) (essentials.Conn, error) {
 	conn, err := p.client.DialContext(ctx, network, address)
 	if err != nil {
